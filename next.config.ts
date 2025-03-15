@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  distDir: process.env.NODE_ENV === "production" ? "build" : ".next",
+  distDir: ".next",
   images: {
     domains: [
       "source.unsplash.com",
