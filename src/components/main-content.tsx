@@ -4,6 +4,9 @@ import React, { useState } from "react"
 import { Card } from "@/components/ui/card"
 import AboutSection from "@/components/sections/about-section"
 import ProjectsSection from "@/components/sections/projects-section"
+import EducationSection from "@/components/sections/education-section"
+import BlogSection from "@/components/sections/blog-section"
+import ContactSection from "@/components/sections/contact-section"
 import Navigation from "@/components/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 
@@ -24,6 +27,18 @@ const MainContent = () => {
             <AboutSection showSkillsOnly />
           </motion.div>
         )
+      case "education":
+        return (
+          <motion.div
+            key="education"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <EducationSection />
+          </motion.div>
+        )
       case "projects":
         return (
           <motion.div
@@ -34,6 +49,30 @@ const MainContent = () => {
             transition={{ duration: 0.5 }}
           >
             <ProjectsSection />
+          </motion.div>
+        )
+      case "blog":
+        return (
+          <motion.div
+            key="blog"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <BlogSection />
+          </motion.div>
+        )
+      case "contact":
+        return (
+          <motion.div
+            key="contact"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <ContactSection />
           </motion.div>
         )
       case "about":

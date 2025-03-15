@@ -8,7 +8,10 @@ import { motion } from "framer-motion"
 const navItems = [
   { name: "Home", href: "#about", id: "about" },
   { name: "Skills", href: "#skills", id: "skills" },
+  { name: "Education", href: "#education", id: "education" },
   { name: "Projects", href: "#projects", id: "projects" },
+  { name: "Blog", href: "#blog", id: "blog" },
+  { name: "Contact", href: "#contact", id: "contact" },
 ]
 
 interface NavigationProps {
@@ -36,13 +39,13 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, setActiveSection
         </div>
 
         <nav className="flex items-center space-x-8">
-          <ul className="flex gap-6">
+          <ul className="flex gap-4 md:gap-6 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-portfolio-accent scrollbar-track-transparent">
             {navItems.map((item) => (
               <li key={item.name} className="relative">
                 <button
                   onClick={() => handleNavClick(item.id)}
                   className={cn(
-                    "text-portfolio-text-secondary hover:text-portfolio-accent transition-colors duration-300",
+                    "text-portfolio-text-secondary hover:text-portfolio-accent transition-colors duration-300 whitespace-nowrap text-sm md:text-base",
                     activeSection === item.id && "text-portfolio-accent font-medium"
                   )}
                 >

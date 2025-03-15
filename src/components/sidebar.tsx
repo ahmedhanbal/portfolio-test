@@ -62,22 +62,26 @@ const Sidebar = () => {
           initial="hidden"
           animate="visible"
           variants={variants}
-          className="w-full mb-6 border-t border-portfolio-border pt-6 space-y-4"
+          className="w-full mb-6 space-y-4"
         >
-          <div className="flex items-center gap-3 group hover:text-portfolio-accent transition-all duration-300">
-            <Mail className="w-5 h-5 text-portfolio-text-secondary group-hover:text-portfolio-accent transition-colors" />
-            <Link
-              href="mailto:ahmedalizahid@gmail.com"
-              className="text-sm group-hover:text-portfolio-accent transition-colors"
-            >
-              ahmedalizahid@gmail.com
-            </Link>
-          </div>
+          <Card className="bg-portfolio-card-bg border-portfolio-border p-4 hover:shadow-md transition-shadow duration-300">
+            <div className="flex items-center gap-3 group hover:text-portfolio-accent transition-all duration-300">
+              <Mail className="w-5 h-5 text-portfolio-text-secondary group-hover:text-portfolio-accent transition-colors" />
+              <Link
+                href="mailto:ahmedali.zahid14@gmail.com"
+                className="text-sm group-hover:text-portfolio-accent transition-colors"
+              >
+                ahmedali.zahid14@gmail.com
+              </Link>
+            </div>
+          </Card>
 
-          <div className="flex items-center gap-3 group hover:text-portfolio-accent transition-all duration-300">
-            <MapPin className="w-5 h-5 text-portfolio-text-secondary group-hover:text-portfolio-accent transition-colors" />
-            <span className="text-sm">Rawalpindi, Pakistan</span>
-          </div>
+          <Card className="bg-portfolio-card-bg border-portfolio-border p-4 hover:shadow-md transition-shadow duration-300">
+            <div className="flex items-center gap-3 group hover:text-portfolio-accent transition-all duration-300">
+              <MapPin className="w-5 h-5 text-portfolio-text-secondary group-hover:text-portfolio-accent transition-colors" />
+              <span className="text-sm">Rawalpindi, Pakistan</span>
+            </div>
+          </Card>
         </motion.div>
 
         <motion.div
