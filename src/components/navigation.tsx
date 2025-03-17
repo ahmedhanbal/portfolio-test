@@ -6,9 +6,8 @@ import { ThemeToggle } from "./theme-toggle"
 import { motion } from "framer-motion"
 
 const navItems = [
-  { name: "Home", href: "#about", id: "about" },
-  { name: "Skills", href: "#skills", id: "skills" },
-  { name: "Education", href: "#education", id: "education" },
+  { name: "Home", href: "#home", id: "home" },
+  { name: "Background", href: "#background", id: "background" },
   { name: "Projects", href: "#projects", id: "projects" },
   { name: "Blog", href: "#blog", id: "blog" },
   { name: "Contact", href: "#contact", id: "contact" },
@@ -34,7 +33,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeSection, setActiveSection
             transition={{ duration: 0.5 }}
             className="text-xl font-bold text-portfolio-accent"
           >
-            Ahmed.
+            Portfolio
           </motion.span>
         </div>
 

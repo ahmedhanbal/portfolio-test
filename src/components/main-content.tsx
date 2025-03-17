@@ -2,41 +2,29 @@
 
 import React, { useState } from "react"
 import { Card } from "@/components/ui/card"
-import AboutSection from "@/components/sections/about-section"
+import HomeSection from "@/components/sections/home-section"
+import BackgroundSection from "@/components/sections/background-section"
 import ProjectsSection from "@/components/sections/projects-section"
-import EducationSection from "@/components/sections/education-section"
 import BlogSection from "@/components/sections/blog-section"
 import ContactSection from "@/components/sections/contact-section"
 import Navigation from "@/components/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 
 const MainContent = () => {
-  const [activeSection, setActiveSection] = useState("about")
+  const [activeSection, setActiveSection] = useState("home")
 
   const renderSection = () => {
     switch (activeSection) {
-      case "skills":
+      case "background":
         return (
           <motion.div
-            key="skills"
+            key="background"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
           >
-            <AboutSection showSkillsOnly />
-          </motion.div>
-        )
-      case "education":
-        return (
-          <motion.div
-            key="education"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-          >
-            <EducationSection />
+            <BackgroundSection />
           </motion.div>
         )
       case "projects":
@@ -75,27 +63,27 @@ const MainContent = () => {
             <ContactSection />
           </motion.div>
         )
-      case "about":
+      case "home":
       default:
         return (
           <motion.div
-            key="about"
+            key="home"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
           >
-            <AboutSection />
+            <HomeSection />
           </motion.div>
         )
     }
   }
 
   return (
-    <div className="flex-1 p-4">
-      <Card className="bg-portfolio-secondary-bg border-portfolio-border min-h-[calc(100vh-2rem)] overflow-hidden backdrop-blur-md bg-portfolio-secondary-bg/80">
+    <div className="flex-1 p-2 sm:p-4">
+      <Card className="bg-portfolio-secondary-bg border-portfolio-border min-h-[calc(100vh-1rem)] sm:min-h-[calc(100vh-2rem)] overflow-hidden backdrop-blur-md bg-portfolio-secondary-bg/80">
         <Navigation activeSection={activeSection} setActiveSection={setActiveSection} />
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           <AnimatePresence mode="wait">
             {renderSection()}
           </AnimatePresence>

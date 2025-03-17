@@ -1,12 +1,23 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Calendar, Clock, ArrowRight, Tag, X, Search } from "lucide-react"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
+
+interface BlogPost {
+  id: number
+  title: string
+  date: string
+  readTime: string
+  excerpt: string
+  slug: string
+  tags: string[]
+  content: string
+}
 
 interface BlogPostProps {
   title: string
@@ -40,86 +51,6 @@ const itemVariants = {
   })
 }
 
-// Sample blog content for the Winget blog
-const wingetBlogContent = `
-# Winget - The Windows Package Manager
-
-Windows Package Manager (also known as winget) is a free and open-source package manager designed for Microsoft Windows 10 and Windows 11. It was announced at Microsoft Build 2020 and offers a command-line interface for installing applications.
-
-## Why Use Winget?
-
-Winget simplifies the way applications are installed on Windows. Instead of visiting websites, downloading installers, and clicking through setup wizards, you can install applications with a single command. It's similar to package managers in Linux distributions like apt for Debian/Ubuntu or dnf for Fedora.
-
-## Basic Commands
-
-Here are some essential winget commands:
-
-### Search for packages
-
-\`\`\`
-winget search [application-name]
-\`\`\`
-
-For example:
-\`\`\`
-winget search vscode
-\`\`\`
-
-### Install an application
-
-\`\`\`
-winget install [application-identifier]
-\`\`\`
-
-For example:
-\`\`\`
-winget install Microsoft.VisualStudioCode
-\`\`\`
-
-### List installed applications
-
-\`\`\`
-winget list
-\`\`\`
-
-### Upgrade an application
-
-\`\`\`
-winget upgrade [application-identifier]
-\`\`\`
-
-For example:
-\`\`\`
-winget upgrade Microsoft.VisualStudioCode
-\`\`\`
-
-### Upgrade all applications
-
-\`\`\`
-winget upgrade --all
-\`\`\`
-
-### Uninstall an application
-
-\`\`\`
-winget uninstall [application-identifier]
-\`\`\`
-
-## Benefits of Winget
-
-1. **Ease of Use**: Install applications with simple commands
-2. **Automation**: Create scripts to install multiple applications at once
-3. **No Bloatware**: Avoid extra software that often comes with installers
-4. **Open Source**: Community-driven development
-5. **Integration**: Works well with other Windows tools and PowerShell
-
-## Getting Started
-
-Winget comes pre-installed on newer versions of Windows 10 and Windows 11. If you don't have it, you can install it from the Microsoft Store as "App Installer".
-
-For developers and system administrators, winget offers a great way to automate software installation and maintenance on Windows machines. It's a powerful tool that brings the convenience of Linux package managers to the Windows ecosystem.
-`;
-
 const BlogPost: React.FC<BlogPostProps> = ({ title, date, readTime, excerpt, slug, tags, index }) => {
   return (
     <motion.div
@@ -142,7 +73,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ title, date, readTime, excerpt, slu
           <div className="flex items-center gap-4 text-sm text-portfolio-text-secondary mb-4">
             <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
-              <span>{date}</span>
+              <span>{new Date(date).toLocaleDateString()}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
@@ -164,7 +95,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ title, date, readTime, excerpt, slu
   )
 }
 
-const BlogViewModal: React.FC<{ blog: any, onClose: () => void }> = ({ blog, onClose }) => {
+const BlogViewModal: React.FC<{ blog: BlogPost | null, onClose: () => void }> = ({ blog, onClose }) => {
   if (!blog) return null;
 
   return (
@@ -197,7 +128,7 @@ const BlogViewModal: React.FC<{ blog: any, onClose: () => void }> = ({ blog, onC
           <div className="flex items-center gap-4 text-sm text-portfolio-text-secondary mb-6">
             <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
-              <span>{blog.date}</span>
+              <span>{new Date(blog.date).toLocaleDateString()}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
@@ -206,7 +137,7 @@ const BlogViewModal: React.FC<{ blog: any, onClose: () => void }> = ({ blog, onC
             <div className="flex items-center gap-1">
               <Tag className="w-4 h-4" />
               <div className="flex gap-2">
-                {blog.tags.map((tag: string) => (
+                {blog.tags.map((tag) => (
                   <Badge key={tag} variant="outline" className="bg-portfolio-accent/10 text-portfolio-accent border-portfolio-accent/20 text-xs">
                     {tag}
                   </Badge>
@@ -255,34 +186,39 @@ const BlogViewModal: React.FC<{ blog: any, onClose: () => void }> = ({ blog, onC
 }
 
 const BlogSection = () => {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [selectedBlog, setSelectedBlog] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Sample blog data
-  const blogs = [
-    {
-      id: 1,
-      title: "Winget: The Windows Package Manager",
-      date: "March 15, 2025",
-      readTime: "5 min read",
-      excerpt: "Learn about Windows Package Manager (winget), Microsoft's answer to apt and brew. A powerful command-line tool for managing software installations.",
-      slug: "winget-windows-package-manager",
-      tags: ["Windows", "Package Manager", "CLI"],
-      content: wingetBlogContent
-    }
-  ];
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('/api/blog');
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch blog posts');
+        }
+        
+        setPosts(data.posts);
+      } catch (error) {
+        console.error('Error fetching blog posts:', error);
+        setError(error instanceof Error ? error.message : 'Failed to fetch blog posts');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // All unique tags
-  const allTags = Array.from(new Set(blogs.flatMap(blog => blog.tags)));
+    fetchPosts();
+  }, []);
 
-  // Filter blogs by search and tags
-  const filteredBlogs = blogs.filter(blog => {
-    const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTag = selectedTag ? blog.tags.includes(selectedTag) : true;
-    return matchesSearch && matchesTag;
-  });
+  const filteredPosts = posts.filter(post =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   return (
     <section id="blog" className="space-y-8">
@@ -295,72 +231,61 @@ const BlogSection = () => {
         <div className="h-1 w-16 bg-portfolio-accent mb-6"></div>
       </motion.div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
-        <div className="relative w-full md:w-1/2">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-portfolio-text-secondary" size={18} />
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="relative mb-8">
+          <Search className="absolute left-3 top-3 text-portfolio-text-secondary w-4 h-4" />
           <Input
             type="text"
-            placeholder="Search articles..."
+            placeholder="Search posts..."
+            className="pl-10 bg-portfolio-secondary-bg border-portfolio-border focus:border-portfolio-accent"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-portfolio-card-bg border-portfolio-border"
           />
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Badge
-            variant="outline"
-            className={`cursor-pointer ${!selectedTag ? "bg-portfolio-accent text-white" : "bg-portfolio-card-bg hover:bg-portfolio-border text-portfolio-text-secondary"}`}
-            onClick={() => setSelectedTag(null)}
-          >
-            All
-          </Badge>
-          {allTags.map((tag) => (
-            <Badge
-              key={tag}
-              variant="outline"
-              className={`cursor-pointer ${selectedTag === tag ? "bg-portfolio-accent text-white" : "bg-portfolio-card-bg hover:bg-portfolio-border text-portfolio-text-secondary"}`}
-              onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
-            >
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="w-8 h-8 rounded-full border-4 border-portfolio-accent border-t-transparent animate-spin"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center text-portfolio-text-secondary py-12">
+            {error}
+          </div>
+        ) : filteredPosts.length === 0 ? (
+          <div className="text-center text-portfolio-text-secondary py-12">
+            No posts found matching your search.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredPosts.map((post, index) => (
+              <div key={post.id} onClick={() => setSelectedPost(post)}>
+                <BlogPost
+                  title={post.title}
+                  date={post.date}
+                  readTime={post.readTime}
+                  excerpt={post.excerpt}
+                  slug={post.slug}
+                  tags={post.tags}
+                  index={index}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </motion.div>
 
-      {filteredBlogs.length > 0 ? (
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {filteredBlogs.map((blog, index) => (
-            <div key={blog.id} onClick={() => setSelectedBlog(blog)}>
-              <BlogPost
-                title={blog.title}
-                date={blog.date}
-                readTime={blog.readTime}
-                excerpt={blog.excerpt}
-                slug={blog.slug}
-                tags={blog.tags}
-                index={index}
-              />
-            </div>
-          ))}
-        </motion.div>
-      ) : (
-        <Card className="bg-portfolio-card-bg border-portfolio-border p-8 text-center">
-          <p className="text-portfolio-text-secondary">No blog posts found matching your criteria.</p>
-        </Card>
-      )}
-
-      {selectedBlog && (
-        <BlogViewModal
-          blog={selectedBlog}
-          onClose={() => setSelectedBlog(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedPost && (
+          <BlogViewModal
+            blog={selectedPost}
+            onClose={() => setSelectedPost(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   )
 }

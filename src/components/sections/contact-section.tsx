@@ -24,15 +24,23 @@ const ContactSection = () => {
     setFormState(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setIsSubmitting(true);
 
-    // In a real application, you would send the form data to a backend service
-    // For demonstration purposes, we'll simulate a successful submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formState),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
       setIsSubmitted(true);
       setFormState({
         name: "",
@@ -45,7 +53,12 @@ const ContactSection = () => {
       setTimeout(() => {
         setIsSubmitted(false);
       }, 5000);
-    }, 1500);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const containerVariants = {
@@ -74,7 +87,7 @@ const ContactSection = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5 }} 
       >
         <h2 className="text-2xl font-semibold mb-6">Contact</h2>
         <div className="h-1 w-16 bg-portfolio-accent mb-6"></div>
@@ -99,7 +112,7 @@ const ContactSection = () => {
 
               <div className="space-y-2 text-portfolio-text-secondary">
                 <p>I'll get back to you as soon as possible.</p>
-                <p>Contact email: <span className="text-portfolio-accent">ahmedali.zahid14@gmail.com</span></p>
+                <p>Contact email: <span className="text-portfolio-accent">ahmed.alizahid14@gmail.com</span></p>
               </div>
             </motion.div>
 

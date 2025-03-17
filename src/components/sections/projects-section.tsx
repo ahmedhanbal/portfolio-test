@@ -80,6 +80,7 @@ const categories = [
   "All",
   "C/C++",
   "Games",
+  "Network",
   "Other"
 ]
 
@@ -89,7 +90,7 @@ const projects = [
     title: "BitTorrent Client",
     description: "A BitTorrent CLI client implemented in C++, featuring peer-to-peer file sharing.",
     projectUrl: "https://github.com/ahmedhanbal/bittorrent-client-cpp",
-    categories: ["All", "C/C++"]
+    categories: ["All", "C/C++","Network"]
   },
   {
     id: 2,
