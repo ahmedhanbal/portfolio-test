@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
 import { Calendar, Clock, ArrowRight, Tag, X, Search } from "lucide-react"
 import Link from "next/link"
