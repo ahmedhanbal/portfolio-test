@@ -9,24 +9,23 @@ import Link from "next/link"
 import { Input } from "@/components/ui/input"
 
 interface BlogPost {
-  id: number
-  title: string
-  date: string
-  readTime: string
-  excerpt: string
-  slug: string
-  tags: string[]
-  content: string
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  published_at: string;
+  updated_at: string;
 }
 
 interface BlogPostProps {
-  title: string
-  date: string
-  readTime: string
-  excerpt: string
-  slug: string
-  tags: string[]
-  index: number
+  title: string;
+  date: string;
+  readTime: string;
+  excerpt: string;
+  slug: string;
+  tags: string[];
+  index: number;
 }
 
 const containerVariants = {
@@ -51,7 +50,7 @@ const itemVariants = {
   })
 }
 
-const BlogPost: React.FC<BlogPostProps> = ({ title, date, readTime, excerpt, slug, tags, index }) => {
+const BlogPost: React.FC<{ post: BlogPost; index: number }> = ({ post, index }) => {
   return (
     <motion.div
       variants={itemVariants}
@@ -60,31 +59,19 @@ const BlogPost: React.FC<BlogPostProps> = ({ title, date, readTime, excerpt, slu
     >
       <Card className="bg-portfolio-card-bg border-portfolio-border p-6 h-full backdrop-blur-md bg-portfolio-card-bg/70 hover:shadow-lg transition-all duration-300">
         <div className="flex flex-col h-full">
-          <div className="flex flex-wrap gap-2 mb-3">
-            {tags.map((tag) => (
-              <Badge key={tag} variant="outline" className="bg-portfolio-accent/10 text-portfolio-accent border-portfolio-accent/20 text-xs">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-
-          <h3 className="text-xl font-medium mb-3">{title}</h3>
+          <h3 className="text-xl font-medium mb-3">{post.title}</h3>
 
           <div className="flex items-center gap-4 text-sm text-portfolio-text-secondary mb-4">
             <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
-              <span>{new Date(date).toLocaleDateString()}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              <span>{readTime}</span>
+              <span>{new Date(post.published_at).toLocaleDateString()}</span>
             </div>
           </div>
 
-          <p className="text-portfolio-text-secondary mb-6 flex-grow">{excerpt}</p>
+          <p className="text-portfolio-text-secondary mb-6 flex-grow">{post.excerpt || ''}</p>
 
           <Link
-            href={`#blog/${slug}`}
+            href={`#blog/${post.slug}`}
             className="text-portfolio-accent hover:text-portfolio-accent/80 flex items-center gap-2 mt-auto w-fit"
           >
             Read more <ArrowRight className="w-4 h-4" />
@@ -128,21 +115,7 @@ const BlogViewModal: React.FC<{ blog: BlogPost | null, onClose: () => void }> = 
           <div className="flex items-center gap-4 text-sm text-portfolio-text-secondary mb-6">
             <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
-              <span>{new Date(blog.date).toLocaleDateString()}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              <span>{blog.readTime}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Tag className="w-4 h-4" />
-              <div className="flex gap-2">
-                {blog.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="bg-portfolio-accent/10 text-portfolio-accent border-portfolio-accent/20 text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
+              <span>{new Date(blog.published_at).toLocaleDateString()}</span>
             </div>
           </div>
 
@@ -216,8 +189,7 @@ const BlogSection = () => {
 
   const filteredPosts = posts.filter(post =>
     post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    (post.excerpt?.toLowerCase() || '').includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -264,12 +236,7 @@ const BlogSection = () => {
             {filteredPosts.map((post, index) => (
               <div key={post.id} onClick={() => setSelectedPost(post)}>
                 <BlogPost
-                  title={post.title}
-                  date={post.date}
-                  readTime={post.readTime}
-                  excerpt={post.excerpt}
-                  slug={post.slug}
-                  tags={post.tags}
+                  post={post}
                   index={index}
                 />
               </div>

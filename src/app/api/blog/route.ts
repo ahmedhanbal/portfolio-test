@@ -14,4 +14,26 @@ export async function GET() {
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { title, slug, excerpt, content } = body;
+
+    const post = await db.insert(blogPosts).values({
+      title,
+      slug,
+      excerpt,
+      content,
+    }).returning();
+
+    return NextResponse.json({ post: post[0] });
+  } catch (error) {
+    console.error('Error creating blog post:', error);
+    return NextResponse.json(
+      { error: 'Failed to create blog post', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
 } 
