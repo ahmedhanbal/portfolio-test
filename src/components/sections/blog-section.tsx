@@ -174,7 +174,14 @@ const BlogSection = () => {
           throw new Error(data.error || 'Failed to fetch blog posts');
         }
         
-        setPosts(data.posts);
+        console.log('Blog posts data:', data);
+        
+        if (data.posts) {
+          setPosts(data.posts);
+        } else {
+          console.error('Invalid response format, missing posts array:', data);
+          setError('Invalid response format');
+        }
       } catch (error) {
         console.error('Error fetching blog posts:', error);
         setError(error instanceof Error ? error.message : 'Failed to fetch blog posts');

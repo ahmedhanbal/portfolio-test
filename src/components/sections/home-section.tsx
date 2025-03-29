@@ -55,6 +55,7 @@ const HomeSection = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const [postsResponse, projectsResponse] = await Promise.all([
           fetch('/api/blog'),
           fetch('/api/projects')
@@ -62,6 +63,9 @@ const HomeSection = () => {
 
         const postsData = await postsResponse.json();
         const projectsData = await projectsResponse.json();
+
+        console.log('Blog data:', postsData);
+        console.log('Project data:', projectsData);
 
         // Handle blog data
         if (postsData.posts && postsData.posts.length > 0) {
@@ -73,7 +77,7 @@ const HomeSection = () => {
             readTime: '5 min read', // Default read time
             excerpt: latestBlogPost.excerpt || 'No excerpt available',
             slug: latestBlogPost.slug,
-            tags: ['Technology', 'Software'] // Default tags since they're not in the API
+            tags: ['Technology', 'Windows', 'Software'] // Default tags since they're not in the API
           });
         }
 
@@ -84,7 +88,7 @@ const HomeSection = () => {
             id: latestProjectData.id,
             title: latestProjectData.title,
             description: latestProjectData.description,
-            technologies: latestProjectData.technologies,
+            technologies: latestProjectData.technologies || [],
             link: latestProjectData.link,
             github: latestProjectData.github
           });

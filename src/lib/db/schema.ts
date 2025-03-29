@@ -2,14 +2,34 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 
+// Improved connection handling for Neon DB
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error('DATABASE_URL environment variable is not set');
+  process.exit(1);
+}
+
+console.log('Connecting to Neon DB...');
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
   ssl: {
     rejectUnauthorized: false
   },
-  max: 20, // Maximum number of clients in the pool
+  max: 10, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
-  connectionTimeoutMillis: 2000, // How long to wait before timing out when connecting a new client
+  connectionTimeoutMillis: 5000, // Increased timeout for connection
+});
+
+// Test the connection
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(1);
+});
+
+pool.on('connect', () => {
+  console.log('Connected to Neon DB successfully');
 });
 
 export const blogPosts = pgTable('blog_posts', {

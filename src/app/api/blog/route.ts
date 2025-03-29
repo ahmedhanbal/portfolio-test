@@ -21,6 +21,15 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { title, slug, excerpt, content } = body;
 
+    if (!title || !slug || !content) {
+      return NextResponse.json(
+        { error: 'Missing required fields', details: 'title, slug, and content are required' },
+        { status: 400 }
+      );
+    }
+
+    console.log('Attempting to create blog post:', { title, slug });
+    
     const post = await db.insert(blogPosts).values({
       title,
       slug,
@@ -28,11 +37,20 @@ export async function POST(request: Request) {
       content,
     }).returning();
 
+    console.log('Blog post created successfully:', post[0]);
     return NextResponse.json({ post: post[0] });
   } catch (error) {
     console.error('Error creating blog post:', error);
+    // More detailed error information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    
     return NextResponse.json(
-      { error: 'Failed to create blog post', details: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        error: 'Failed to create blog post', 
+        details: errorMessage,
+        stack: errorStack 
+      },
       { status: 500 }
     );
   }

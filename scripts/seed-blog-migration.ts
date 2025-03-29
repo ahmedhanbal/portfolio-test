@@ -138,8 +138,12 @@ For more information, visit the [official winget documentation](https://docs.mic
   };
 
   try {
-    console.log('Seeding blog post via API...');
-    const response = await fetch('http://localhost:3000/api/blog', {
+    // Use the correct Vercel deployment URL
+    const baseUrl = 'https://hanbal.vercel.app';
+    
+    console.log(`Seeding blog post via API to ${baseUrl}...`);
+    
+    const response = await fetch(`${baseUrl}/api/blog`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -152,7 +156,10 @@ For more information, visit the [official winget documentation](https://docs.mic
     if (response.ok) {
       console.log('Blog post seeded successfully:', data.post);
     } else {
-      console.error('Failed to seed blog post:', data.error);
+      console.error('Failed to seed blog post:', data.error, data.details);
+      if (data.stack) {
+        console.error('Error stack:', data.stack);
+      }
     }
   } catch (error) {
     console.error('Error seeding blog post:', error);
