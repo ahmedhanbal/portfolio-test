@@ -71,6 +71,14 @@ const BlogPost: React.FC<{ post: BlogPost; index: number }> = ({ post, index }) 
 
           <button
             className="text-portfolio-accent hover:text-portfolio-accent/80 flex items-center gap-2 mt-auto w-fit bg-transparent border-0 p-0 cursor-pointer"
+            aria-label={`Read more about ${post.title}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              const parentDiv = e.currentTarget.closest('[data-slug]');
+              if (parentDiv) {
+                parentDiv.dispatchEvent(new Event('click', { bubbles: true }));
+              }
+            }}
           >
             Read more <ArrowRight className="w-4 h-4" />
           </button>

@@ -163,25 +163,30 @@ const HomeSection = () => {
               <button
                 onClick={() => {
                   // First navigate to the blog section using the main app's navigation
-                  const mainContent = document.querySelector("div[id='blog']");
-                  if (mainContent) {
-                    mainContent.scrollIntoView({ behavior: 'smooth' });
+                  // Find and click on the correct blog navigation item to activate that section
+                  const blogNavItem = Array.from(document.querySelectorAll('button'))
+                    .find(el => el.textContent?.includes('Blog'));
+                  
+                  if (blogNavItem) {
+                    blogNavItem.click();
                     
-                    // Find and click on the correct blog navigation item to activate that section
-                    const blogNavItem = Array.from(document.querySelectorAll('button'))
-                      .find(el => el.textContent?.includes('Blog'));
-                    
-                    if (blogNavItem) {
-                      blogNavItem.click();
+                    // After navigation has a chance to render the blog section
+                    setTimeout(() => {
+                      // Find and click the blog post with the matching slug
+                      const postElements = document.querySelectorAll(`[data-slug="${latestPost.slug}"]`);
                       
-                      // After a short delay, find and click the blog post
-                      setTimeout(() => {
-                        const postElement = document.querySelector(`[data-slug="${latestPost.slug}"]`);
-                        if (postElement) {
-                          (postElement as HTMLElement).click();
-                        }
-                      }, 300);
-                    }
+                      if (postElements && postElements.length > 0) {
+                        // We found the blog post element, trigger its click
+                        (postElements[0] as HTMLElement).click();
+                      } else {
+                        console.error('Blog post element not found:', latestPost.slug);
+                        // Debug what posts are available
+                        const allPosts = document.querySelectorAll('[data-slug]');
+                        console.log('Available posts:', Array.from(allPosts).map(el => el.getAttribute('data-slug')));
+                      }
+                    }, 500); // Give more time for the blog section to fully render
+                  } else {
+                    console.error('Blog navigation button not found');
                   }
                 }}
                 className="text-portfolio-accent hover:text-portfolio-accent/80 flex items-center gap-2 mt-auto w-fit bg-transparent border-0 p-0 cursor-pointer"
