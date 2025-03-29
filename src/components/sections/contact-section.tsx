@@ -18,15 +18,19 @@ const ContactSection = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormState(prev => ({ ...prev, [name]: value }));
+    // Clear error when user types
+    if (error) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
     try {
       const response = await fetch('/api/contact', {
@@ -37,8 +41,10 @@ const ContactSection = () => {
         body: JSON.stringify(formState),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        throw new Error(data.error || 'Failed to send message');
       }
 
       setIsSubmitted(true);
@@ -55,7 +61,7 @@ const ContactSection = () => {
       }, 5000);
     } catch (error) {
       console.error('Error sending message:', error);
-      // You might want to show an error message to the user here
+      setError(error instanceof Error ? error.message : 'Failed to send message. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
@@ -125,6 +131,12 @@ const ContactSection = () => {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {error && (
+                    <div className="p-3 rounded-md bg-red-500/10 border border-red-500/50 text-red-500">
+                      {error}
+                    </div>
+                  )}
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="relative">
