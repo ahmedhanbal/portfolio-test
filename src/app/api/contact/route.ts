@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Get API key directly from environment variable
+const resendApiKey = process.env.RESEND_API_KEY || '';
+const resend = new Resend(resendApiKey);
 
 // Simple email validation function
 function isValidEmail(email: string): boolean {
@@ -37,7 +39,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!process.env.RESEND_API_KEY) {
+    if (!resendApiKey) {
       console.error('RESEND_API_KEY is not defined');
       return NextResponse.json(
         { error: 'Email service configuration error' },
@@ -45,18 +47,22 @@ export async function POST(request: Request) {
       );
     }
 
-    const data = await resend.emails.send({
-      from: 'Portfolio Contact Form <onboarding@resend.dev>',
-      to: ['ahmed.alizahid14@gmail.com'],
-      subject: `New Contact Form Submission: ${subject}`,
-      text: `
-Name: ${name}
-Email: ${email}
-Subject: ${subject}
+    // Format message as HTML for better readability
+    const htmlContent = `
+      <h2>New Contact Form Submission</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Subject:</strong> ${subject}</p>
+      <hr />
+      <h3>Message:</h3>
+      <p>${message.replace(/\n/g, '<br>')}</p>
+    `;
 
-Message:
-${message}
-      `,
+    const data = await resend.emails.send({
+      from: 'Portfolio Contact <onboarding@resend.dev>',
+      to: ['ahmed.alizahid14@gmail.com'],
+      subject: `New Contact Form: ${subject}`,
+      html: htmlContent,
       reply_to: email,
     });
 
