@@ -60,11 +60,35 @@ const HomeSection = () => {
           fetch('/api/projects')
         ]);
 
-        const posts = await postsResponse.json();
-        const projects = await projectsResponse.json();
+        const postsData = await postsResponse.json();
+        const projectsData = await projectsResponse.json();
 
-        setLatestPost(posts[0]);
-        setLatestProject(projects[0]);
+        // Handle blog data
+        if (postsData.posts && postsData.posts.length > 0) {
+          const latestBlogPost = postsData.posts[0];
+          setLatestPost({
+            id: latestBlogPost.id,
+            title: latestBlogPost.title,
+            date: latestBlogPost.published_at,
+            readTime: '5 min read', // Default read time
+            excerpt: latestBlogPost.excerpt || 'No excerpt available',
+            slug: latestBlogPost.slug,
+            tags: ['Technology', 'Software'] // Default tags since they're not in the API
+          });
+        }
+
+        // Handle projects data
+        if (projectsData.posts && projectsData.posts.length > 0) {
+          const latestProjectData = projectsData.posts[0];
+          setLatestProject({
+            id: latestProjectData.id,
+            title: latestProjectData.title,
+            description: latestProjectData.description,
+            technologies: latestProjectData.technologies,
+            link: latestProjectData.link,
+            github: latestProjectData.github
+          });
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
