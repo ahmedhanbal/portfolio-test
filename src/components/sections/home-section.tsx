@@ -160,23 +160,34 @@ const HomeSection = () => {
 
               <p className="text-portfolio-text-secondary mb-6">{latestPost.excerpt}</p>
 
-              <Link
-                href={`#blog`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.querySelector('#blog')?.scrollIntoView({ behavior: 'smooth' });
-                  // Wait a bit before simulating click on the blog post
-                  setTimeout(() => {
-                    const postElement = document.querySelector(`[data-slug="${latestPost.slug}"]`);
-                    if (postElement) {
-                      (postElement as HTMLElement).click();
+              <button
+                onClick={() => {
+                  // First navigate to the blog section using the main app's navigation
+                  const mainContent = document.querySelector("div[id='blog']");
+                  if (mainContent) {
+                    mainContent.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Find and click on the correct blog navigation item to activate that section
+                    const blogNavItem = Array.from(document.querySelectorAll('button'))
+                      .find(el => el.textContent?.includes('Blog'));
+                    
+                    if (blogNavItem) {
+                      blogNavItem.click();
+                      
+                      // After a short delay, find and click the blog post
+                      setTimeout(() => {
+                        const postElement = document.querySelector(`[data-slug="${latestPost.slug}"]`);
+                        if (postElement) {
+                          (postElement as HTMLElement).click();
+                        }
+                      }, 300);
                     }
-                  }, 500);
+                  }
                 }}
-                className="text-portfolio-accent hover:text-portfolio-accent/80 flex items-center gap-2 mt-auto w-fit"
+                className="text-portfolio-accent hover:text-portfolio-accent/80 flex items-center gap-2 mt-auto w-fit bg-transparent border-0 p-0 cursor-pointer"
               >
                 Read more <ArrowRight className="w-4 h-4" />
-              </Link>
+              </button>
             </Card>
           </motion.div>
         )}
