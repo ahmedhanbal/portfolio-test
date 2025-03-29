@@ -118,7 +118,6 @@ const ContactSection = () => {
 
               <div className="space-y-2 text-portfolio-text-secondary">
                 <p>I'll get back to you as soon as possible.</p>
-                <p>Contact email: <span className="text-portfolio-accent">ahmed.alizahid14@gmail.com</span></p>
               </div>
             </motion.div>
 

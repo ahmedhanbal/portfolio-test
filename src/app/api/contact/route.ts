@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
     // Format message as HTML for better readability
     const htmlContent = `
-      <h2>New Contact Form Submission</h2>
+      <h2>Contact Form Submission</h2>
       <p><strong>Name:</strong> ${name}</p>
       <p><strong>Email:</strong> ${email}</p>
       <p><strong>Subject:</strong> ${subject}</p>
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     const data = await resend.emails.send({
       from: 'Portfolio Contact <onboarding@resend.dev>',
       to: ['ahmed.alizahid14@gmail.com'],
-      subject: `New Contact Form: ${subject}`,
+      subject: `${subject}`,
       html: htmlContent,
       reply_to: email,
     });
