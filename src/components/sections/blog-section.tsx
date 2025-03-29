@@ -83,6 +83,117 @@ const BlogPost: React.FC<{ post: BlogPost; index: number }> = ({ post, index }) 
 const BlogViewModal: React.FC<{ blog: BlogPost | null, onClose: () => void }> = ({ blog, onClose }) => {
   if (!blog) return null;
 
+  const renderContent = (content: string) => {
+    // Split content by lines
+    const lines = content.split('\n');
+    const result = [];
+    
+    let inCodeBlock = false;
+    let codeBlockContent = [];
+    let codeLanguage = '';
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Handle code blocks
+      if (line.startsWith('```') && !inCodeBlock) {
+        // Start of code block
+        inCodeBlock = true;
+        codeLanguage = line.replace('```', '').trim();
+        codeBlockContent = [];
+        continue;
+      } else if (line.includes('```') && inCodeBlock) {
+        // End of code block
+        inCodeBlock = false;
+        result.push(
+          <pre key={`code-${i}`} className="bg-gray-800 p-4 rounded-md my-4 overflow-x-auto">
+            <code className="text-gray-200 font-mono whitespace-pre">
+              {codeBlockContent.join('\n')}
+            </code>
+          </pre>
+        );
+        continue;
+      } else if (inCodeBlock) {
+        // Inside code block
+        codeBlockContent.push(line);
+        continue;
+      }
+      
+      // Handle headers
+      if (line.startsWith('# ')) {
+        result.push(
+          <h1 key={`h1-${i}`} className="text-3xl font-bold mb-6 mt-8">
+            {line.replace('# ', '')}
+          </h1>
+        );
+      } else if (line.startsWith('## ')) {
+        result.push(
+          <h2 key={`h2-${i}`} className="text-2xl font-semibold mb-4 mt-6">
+            {line.replace('## ', '')}
+          </h2>
+        );
+      } else if (line.startsWith('### ')) {
+        result.push(
+          <h3 key={`h3-${i}`} className="text-xl font-medium mb-3 mt-5">
+            {line.replace('### ', '')}
+          </h3>
+        );
+      } else if (line.trim() === '') {
+        // Empty line
+        result.push(<div key={`empty-${i}`} className="h-4" />);
+      } else {
+        // Regular paragraph - with link parsing
+        const parsedLine = parseLinks(line);
+        result.push(
+          <p key={`p-${i}`} className="mb-4 text-portfolio-text-secondary">
+            {parsedLine}
+          </p>
+        );
+      }
+    }
+    
+    return result;
+  };
+  
+  // Helper function to parse links in text
+  const parseLinks = (text: string) => {
+    // Regex to match markdown links
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    
+    // If no links, return the text as is
+    if (!linkRegex.test(text)) {
+      return text;
+    }
+    
+    // Split by the link pattern
+    const parts = text.split(linkRegex);
+    const result = [];
+    
+    for (let i = 0; i < parts.length; i++) {
+      if (i % 3 === 0) {
+        // Text before or after a link or between links
+        result.push(parts[i]);
+      } else if (i % 3 === 1) {
+        // Link text
+        const linkText = parts[i];
+        const linkUrl = parts[i + 1];
+        result.push(
+          <a 
+            key={`link-${i}`}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-portfolio-accent hover:underline"
+          >
+            {linkText}
+          </a>
+        );
+      }
+    }
+    
+    return result;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -118,54 +229,7 @@ const BlogViewModal: React.FC<{ blog: BlogPost | null, onClose: () => void }> = 
           </div>
 
           <div className="prose prose-invert max-w-none">
-            {blog.content.split('\n').map((paragraph: string, i: number) => {
-              if (paragraph.startsWith('# ')) {
-                return <h1 key={i} className="text-3xl font-bold mb-6 mt-8">{paragraph.replace('# ', '')}</h1>;
-              } else if (paragraph.startsWith('## ')) {
-                return <h2 key={i} className="text-2xl font-semibold mb-4 mt-6">{paragraph.replace('## ', '')}</h2>;
-              } else if (paragraph.startsWith('### ')) {
-                return <h3 key={i} className="text-xl font-medium mb-3 mt-5">{paragraph.replace('### ', '')}</h3>;
-              } else if (paragraph.startsWith('```') && paragraph.endsWith('```')) {
-                return (
-                  <pre key={i} className="bg-gray-800 p-4 rounded-md my-4 overflow-x-auto">
-                    <code className="text-gray-200">{paragraph.replace(/```/g, '').trim()}</code>
-                  </pre>
-                );
-              } else if (paragraph.startsWith('```')) {
-                const language = paragraph.replace('```', '').trim();
-                return (
-                  <pre key={i} className="bg-gray-800 p-4 rounded-t-md mt-4">
-                    <code className="text-gray-200 font-mono">{language ? `Language: ${language}` : ''}</code>
-                  </pre>
-                );
-              } else if (paragraph.endsWith('```')) {
-                return (
-                  <pre key={i} className="bg-gray-800 p-4 rounded-b-md mb-4">
-                    <code className="text-gray-200 font-mono">{paragraph.replace('```', '').trim()}</code>
-                  </pre>
-                );
-              } else if (paragraph.trim() === '') {
-                return <div key={i} className="h-4"></div>;
-              } else {
-                const prevParagraph = i > 0 ? blog.content.split('\n')[i-1] : '';
-                const nextParagraph = i < blog.content.split('\n').length - 1 ? blog.content.split('\n')[i+1] : '';
-                
-                const isInCodeBlock = 
-                  (prevParagraph.startsWith('```') && !prevParagraph.endsWith('```')) || 
-                  (nextParagraph.endsWith('```') && !nextParagraph.startsWith('```')) ||
-                  (prevParagraph.includes('```') && !nextParagraph.includes('```') && !paragraph.includes('```'));
-                
-                if (isInCodeBlock) {
-                  return (
-                    <pre key={i} className="bg-gray-800 p-4 mb-0 mt-0">
-                      <code className="text-gray-200 font-mono">{paragraph}</code>
-                    </pre>
-                  );
-                } else {
-                  return <p key={i} className="mb-4 text-portfolio-text-secondary">{paragraph}</p>;
-                }
-              }
-            })}
+            {renderContent(blog.content)}
           </div>
         </div>
       </motion.div>
