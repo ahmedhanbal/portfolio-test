@@ -66,10 +66,11 @@ const Sidebar = () => {
         >
           <Card className="bg-portfolio-card-bg border-portfolio-border p-6 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center gap-3 group hover:text-portfolio-accent transition-all duration-300">
-              <Mail className="w-5 h-5 text-portfolio-text-secondary group-hover:text-portfolio-accent transition-colors" />
+              <Mail className="w-5 h-5 text-portfolio-text-secondary group-hover:text-portfolio-accent transition-colors flex-shrink-0" />
               <Link
-                href="mailto:ahmedali.zahid14@gmail.com"
-                className="text-sm group-hover:text-portfolio-accent transition-colors"
+                href="mailto:ahmed.alizahid14@gmail.com"
+                className="text-sm group-hover:text-portfolio-accent transition-colors truncate max-w-[170px] sm:max-w-full"
+                title="ahmed.alizahid14@gmail.com"
               >
                 ahmed.alizahid14@gmail.com
               </Link>

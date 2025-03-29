@@ -69,12 +69,11 @@ const BlogPost: React.FC<{ post: BlogPost; index: number }> = ({ post, index }) 
 
           <p className="text-portfolio-text-secondary mb-6 flex-grow">{post.excerpt || ''}</p>
 
-          <Link
-            href={`#blog/${post.slug}`}
-            className="text-portfolio-accent hover:text-portfolio-accent/80 flex items-center gap-2 mt-auto w-fit"
+          <button
+            className="text-portfolio-accent hover:text-portfolio-accent/80 flex items-center gap-2 mt-auto w-fit bg-transparent border-0 p-0 cursor-pointer"
           >
             Read more <ArrowRight className="w-4 h-4" />
-          </Link>
+          </button>
         </div>
       </Card>
     </motion.div>
@@ -128,26 +127,43 @@ const BlogViewModal: React.FC<{ blog: BlogPost | null, onClose: () => void }> = 
                 return <h3 key={i} className="text-xl font-medium mb-3 mt-5">{paragraph.replace('### ', '')}</h3>;
               } else if (paragraph.startsWith('```') && paragraph.endsWith('```')) {
                 return (
-                  <pre key={i} className="bg-black/20 p-4 rounded-md my-4 overflow-x-auto">
-                    <code>{paragraph.replace(/```/g, '').trim()}</code>
+                  <pre key={i} className="bg-gray-800 p-4 rounded-md my-4 overflow-x-auto">
+                    <code className="text-gray-200">{paragraph.replace(/```/g, '').trim()}</code>
                   </pre>
                 );
               } else if (paragraph.startsWith('```')) {
+                const language = paragraph.replace('```', '').trim();
                 return (
-                  <pre key={i} className="bg-black/20 p-4 rounded-t-md mt-4">
-                    <code>{paragraph.replace('```', '').trim()}</code>
+                  <pre key={i} className="bg-gray-800 p-4 rounded-t-md mt-4">
+                    <code className="text-gray-200 font-mono">{language ? `Language: ${language}` : ''}</code>
                   </pre>
                 );
               } else if (paragraph.endsWith('```')) {
                 return (
-                  <pre key={i} className="bg-black/20 p-4 rounded-b-md mb-4">
-                    <code>{paragraph.replace('```', '').trim()}</code>
+                  <pre key={i} className="bg-gray-800 p-4 rounded-b-md mb-4">
+                    <code className="text-gray-200 font-mono">{paragraph.replace('```', '').trim()}</code>
                   </pre>
                 );
               } else if (paragraph.trim() === '') {
                 return <div key={i} className="h-4"></div>;
               } else {
-                return <p key={i} className="mb-4 text-portfolio-text-secondary">{paragraph}</p>;
+                const prevParagraph = i > 0 ? blog.content.split('\n')[i-1] : '';
+                const nextParagraph = i < blog.content.split('\n').length - 1 ? blog.content.split('\n')[i+1] : '';
+                
+                const isInCodeBlock = 
+                  (prevParagraph.startsWith('```') && !prevParagraph.endsWith('```')) || 
+                  (nextParagraph.endsWith('```') && !nextParagraph.startsWith('```')) ||
+                  (prevParagraph.includes('```') && !nextParagraph.includes('```') && !paragraph.includes('```'));
+                
+                if (isInCodeBlock) {
+                  return (
+                    <pre key={i} className="bg-gray-800 p-4 mb-0 mt-0">
+                      <code className="text-gray-200 font-mono">{paragraph}</code>
+                    </pre>
+                  );
+                } else {
+                  return <p key={i} className="mb-4 text-portfolio-text-secondary">{paragraph}</p>;
+                }
               }
             })}
           </div>
@@ -240,7 +256,11 @@ const BlogSection = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredPosts.map((post, index) => (
-              <div key={post.id} onClick={() => setSelectedPost(post)}>
+              <div 
+                key={post.id} 
+                onClick={() => setSelectedPost(post)}
+                data-slug={post.slug}
+              >
                 <BlogPost
                   post={post}
                   index={index}

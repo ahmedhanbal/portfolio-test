@@ -161,7 +161,18 @@ const HomeSection = () => {
               <p className="text-portfolio-text-secondary mb-6">{latestPost.excerpt}</p>
 
               <Link
-                href={`#blog/${latestPost.slug}`}
+                href={`#blog`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.querySelector('#blog')?.scrollIntoView({ behavior: 'smooth' });
+                  // Wait a bit before simulating click on the blog post
+                  setTimeout(() => {
+                    const postElement = document.querySelector(`[data-slug="${latestPost.slug}"]`);
+                    if (postElement) {
+                      (postElement as HTMLElement).click();
+                    }
+                  }, 500);
+                }}
                 className="text-portfolio-accent hover:text-portfolio-accent/80 flex items-center gap-2 mt-auto w-fit"
               >
                 Read more <ArrowRight className="w-4 h-4" />
