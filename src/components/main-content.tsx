@@ -83,7 +83,7 @@ const MainContent = () => {
     <div className="flex-1 p-2 sm:p-4">
       <Card className="bg-portfolio-secondary-bg border-portfolio-border min-h-[calc(100vh-1rem)] sm:min-h-[calc(100vh-2rem)] overflow-hidden backdrop-blur-md bg-portfolio-secondary-bg/80">
         <Navigation activeSection={activeSection} setActiveSection={setActiveSection} />
-        <div className="p-3 sm:p-6">
+        <div className="p-3 sm:p-6 pb-20 md:pb-6">
           <AnimatePresence mode="wait">
             {renderSection()}
           </AnimatePresence>

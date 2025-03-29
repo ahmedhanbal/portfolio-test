@@ -222,14 +222,6 @@ const HomeSection = () => {
                 >
                   View Project <ArrowRight className="w-4 h-4" />
                 </Link>
-                <Link
-                  href={latestProject.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-portfolio-accent hover:text-portfolio-accent/80 flex items-center gap-2"
-                >
-                  GitHub <ArrowRight className="w-4 h-4" />
-                </Link>
               </div>
             </Card>
           </motion.div>
